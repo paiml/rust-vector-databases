@@ -1,0 +1,12 @@
+[package]
+name = "vec-qdrant"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "qdrant-client wrappers — collections, points, search"
+
+[dependencies]

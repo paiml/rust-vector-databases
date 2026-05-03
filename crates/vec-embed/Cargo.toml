@@ -1,0 +1,12 @@
+[package]
+name = "vec-embed"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "Sentence and image encoders via candle"
+
+[dependencies]
