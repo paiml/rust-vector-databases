@@ -7,6 +7,6 @@ repository.workspace = true
 homepage.workspace = true
 authors.workspace = true
 rust-version.workspace = true
-description = "Filter-then-search, hybrid (BM25 + dense), rerankers"
+description = "Reciprocal-rank fusion + filtered-query helpers for hybrid search"
 
 [dependencies]
