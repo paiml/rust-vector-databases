@@ -1,0 +1,37 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.13.4
+    container_name: rust-vector-databases-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"   # REST + dashboard
+      - "6334:6334"   # gRPC (the Rust client uses this)
+    environment:
+      # Default log level — bump to TRACE for the M5 SLA-tuning lessons.
+      QDRANT__LOG_LEVEL: INFO
+    volumes:
+      # Named volume — Docker manages lifecycle. Avoids the host-vs-container
+      # UID war that bind-mounting ./qdrant_storage:/qdrant/storage triggers
+      # (the qdrant user inside the container owns every file, so `rm -rf
+      # qdrant_storage` from the host fails without sudo). Wipe with
+      # `make nuke`.
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      # /readyz returns 200 once the gRPC and REST listeners are up
+      # AND collections have finished hydrating from disk. /healthz
+      # returns 200 earlier but does NOT wait for collection hydrate,
+      # so re-runs against an existing volume can race.
+      #
+      # The qdrant image has bash but no curl/wget, so we open a TCP
+      # socket via bash's `/dev/tcp` builtin. Forcing `bash -c` here
+      # because docker's CMD-SHELL defaults to `/bin/sh` (dash), which
+      # does NOT support `/dev/tcp`.
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6333 && printf 'GET /readyz HTTP/1.0\\r\\n\\r\\n' >&3 && head -1 <&3 | grep -q '200 OK'"]
+      interval: 5s
+      timeout: 3s
+      retries: 24    # up to 2 minutes for first-boot collection hydrate
+      start_period: 5s
+
+volumes:
+  qdrant_data:
+    name: rust-vector-databases-qdrant-data
