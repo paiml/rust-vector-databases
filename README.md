@@ -120,17 +120,16 @@ default.
 
 ## Course outline
 
-The 5-module / 20-lesson plan that this repo backs lives in
-[`paiml/course-studio:config/rde_c13_vector_databases.lua`](https://github.com/paiml/course-studio/blob/main/config/rde_c13_vector_databases.lua):
+Five modules, twenty lessons:
 
-* **M1** — Vector Search Foundations (cosine vs dot vs L2, HNSW, candle quickstart)
-* **M2** — Embeddings in Rust (sentence transformers via fastembed / candle)
-* **M3** — Qdrant — Collections, Points, Search (`qdrant-client` walkthrough)
-* **M4** — Hybrid, Filtered, and Multi-Tenant Search (BM25 + dense, RRF)
-* **M5** — Operations, Scaling, and Cost (snapshots, quantization, recall@k)
+* **M1** — Vector Search Foundations (cosine vs dot vs L2, HNSW, Qdrant quickstart)
+* **M2** — Embeddings in Rust (sentence transformers via candle, batching, multi-modal)
+* **M3** — Qdrant — Collections, Points, Search (`qdrant-client` walkthrough end-to-end)
+* **M4** — Hybrid, Filtered, and Multi-Tenant Search (BM25 + dense, RRF, rerankers)
+* **M5** — Operations, Scaling, and Cost (snapshots, quantization, recall@k benchmarking)
 
-The capstone — `5.1.4-shipping-vector-pipeline` — is what the two demos in
-this repo embody.
+The capstone — *Shipping a Vector Pipeline to Production* — is what the two
+demos in this repo embody.
 
 ## License
 
