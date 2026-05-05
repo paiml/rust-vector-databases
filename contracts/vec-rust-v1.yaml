@@ -1,0 +1,271 @@
+metadata:
+  version: 1.0.0
+  created: '2026-05-04'
+  author: 'PAIML Engineering'
+  description: |
+    Provable contracts for the rust-vector-databases reference workspace
+    (Coursera Rust for Data Engineering c13 — Vector Databases with Rust).
+    Eight runtime invariants split four-and-four across the workspace's
+    two end-to-end demos:
+
+      * crates/vec-cli/examples/aprender_film_search.rs
+        — in-process aprender-rag pipeline (no Docker, no model download)
+      * crates/vec-cli/examples/qdrant_film_search.rs
+        — server-backed Qdrant pipeline against the compose.yml service
+
+    Each demo asserts the same four invariants on the FilmHit result
+    vector after running a hard-coded query against the 50-row Sakila
+    film fixture in data/films.json. The YAML below is the formal spec
+    linted by `pv lint contracts/`; each obligation maps to an `assert!`
+    call in the corresponding example.
+  references:
+    - 'rust-vector-databases README §Provable contracts'
+    - 'paiml/aprender (pv) — provable-contracts CLI'
+    - 'data/films.json — the 50-row Sakila fixture every contract reads'
+
+equations:
+  aprender_row_count_exact:
+    formula: 'len(aprender_hits) == 5'
+    domain: 'aprender_hits ∈ Vec<FilmHit>, top_k = 5'
+    codomain: 'bool'
+    lean_theorem: Theorems.VecRust.AprenderRowCountExact
+    postconditions:
+    - 'aprender_hits.len() == 5'
+
+  aprender_top_score_non_negative:
+    formula: 'aprender_hits[0].score >= 0.0'
+    domain: 'aprender_hits ∈ Vec<FilmHit>, hits non-empty'
+    codomain: 'bool'
+    lean_theorem: Theorems.VecRust.AprenderTopScoreNonNegative
+    postconditions:
+    - 'aprender_hits[0].score >= 0.0'
+
+  aprender_film_id_positive:
+    formula: 'forall h in aprender_hits. h.id > 0'
+    domain: 'aprender_hits ∈ Vec<FilmHit>'
+    codomain: 'bool'
+    lean_theorem: Theorems.VecRust.AprenderFilmIdPositive
+    postconditions:
+    - 'all aprender_hits have id > 0'
+
+  aprender_score_descending:
+    formula: 'forall i. aprender_hits[i].score >= aprender_hits[i+1].score'
+    domain: 'aprender_hits ∈ Vec<FilmHit>, ordered by pipeline'
+    codomain: 'bool'
+    lean_theorem: Theorems.VecRust.AprenderScoreDescending
+    postconditions:
+    - 'aprender_hits.score is monotonically non-increasing'
+
+  qdrant_row_count_exact:
+    formula: 'len(qdrant_hits) == 5'
+    domain: 'qdrant_hits ∈ Vec<FilmHit>, top_k = 5'
+    codomain: 'bool'
+    lean_theorem: Theorems.VecRust.QdrantRowCountExact
+    postconditions:
+    - 'qdrant_hits.len() == 5'
+
+  qdrant_top_score_non_negative:
+    formula: 'qdrant_hits[0].score >= 0.0'
+    domain: 'qdrant_hits ∈ Vec<FilmHit>, hits non-empty'
+    codomain: 'bool'
+    lean_theorem: Theorems.VecRust.QdrantTopScoreNonNegative
+    postconditions:
+    - 'qdrant_hits[0].score >= 0.0'
+
+  qdrant_film_id_positive:
+    formula: 'forall h in qdrant_hits. h.id > 0'
+    domain: 'qdrant_hits ∈ Vec<FilmHit>'
+    codomain: 'bool'
+    lean_theorem: Theorems.VecRust.QdrantFilmIdPositive
+    postconditions:
+    - 'all qdrant_hits have id > 0'
+
+  qdrant_score_descending:
+    formula: 'forall i. qdrant_hits[i].score >= qdrant_hits[i+1].score'
+    domain: 'qdrant_hits ∈ Vec<FilmHit>, Qdrant default ordering'
+    codomain: 'bool'
+    lean_theorem: Theorems.VecRust.QdrantScoreDescending
+    postconditions:
+    - 'qdrant_hits.score is monotonically non-increasing'
+
+proof_obligations:
+  - type: postcondition
+    property: 'Aprender row count is exactly 5'
+    formal: 'len(aprender_hits) == 5'
+    applies_to: aprender_film_search
+  - type: postcondition
+    property: 'Aprender top score is non-negative'
+    formal: 'aprender_hits[0].score >= 0.0'
+    applies_to: aprender_film_search
+  - type: invariant
+    property: 'All Aprender film ids are positive'
+    formal: 'forall h in aprender_hits. h.id > 0'
+    applies_to: aprender_film_search
+  - type: invariant
+    property: 'Aprender result is sorted by score descending'
+    formal: 'forall i. aprender_hits[i].score >= aprender_hits[i+1].score'
+    applies_to: aprender_film_search
+  - type: postcondition
+    property: 'Qdrant row count is exactly 5'
+    formal: 'len(qdrant_hits) == 5'
+    applies_to: qdrant_film_search
+  - type: postcondition
+    property: 'Qdrant top score is non-negative'
+    formal: 'qdrant_hits[0].score >= 0.0'
+    applies_to: qdrant_film_search
+  - type: invariant
+    property: 'All Qdrant film ids are positive'
+    formal: 'forall h in qdrant_hits. h.id > 0'
+    applies_to: qdrant_film_search
+  - type: invariant
+    property: 'Qdrant result is sorted by score descending'
+    formal: 'forall i. qdrant_hits[i].score >= qdrant_hits[i+1].score'
+    applies_to: qdrant_film_search
+
+enforcement:
+  aprender_row_count_exact:
+    description: 'top_k=5 in the pipeline must return exactly 5 deduped FilmHits on the 50-row fixture.'
+    check: 'aprender_film_search assertion: hits.len() == DEFAULT_TOP_K (5)'
+    severity: 'ERROR'
+  aprender_top_score_non_negative:
+    description: 'RRF fused score is the sum of 1/(k+rank) terms — strictly non-negative.'
+    check: 'aprender_film_search assertion on hits[0].score'
+    severity: 'ERROR'
+  aprender_film_id_positive:
+    description: 'Sakila AUTO_INCREMENT film ids start at 1; zero or negative is data corruption.'
+    check: 'aprender_film_search loop assertion on every hit.id'
+    severity: 'ERROR'
+  aprender_score_descending:
+    description: 'Pipeline must order results by best chunk score per film descending; reversed output is a fusion bug.'
+    check: 'aprender_film_search pairwise assertion across the FilmHit vector'
+    severity: 'ERROR'
+  qdrant_row_count_exact:
+    description: 'limit=5 in SearchPointsBuilder must return exactly 5 ScoredPoints when the collection has >=5 rows.'
+    check: 'qdrant_film_search assertion: hits.len() == DEFAULT_TOP_K (5)'
+    severity: 'ERROR'
+  qdrant_top_score_non_negative:
+    description: 'Qdrant cosine score is in [-1, 1]; for unit-norm hash vectors it stays in [0, 1] (positive).'
+    check: 'qdrant_film_search assertion on hits[0].score'
+    severity: 'ERROR'
+  qdrant_film_id_positive:
+    description: 'Sakila AUTO_INCREMENT film ids start at 1; PointStruct::new(film.id, ...) preserves them.'
+    check: 'qdrant_film_search loop assertion on every hit.id'
+    severity: 'ERROR'
+  qdrant_score_descending:
+    description: 'Qdrant search returns highest score first by default; reversed output is a server bug.'
+    check: 'qdrant_film_search pairwise assertion across the FilmHit vector'
+    severity: 'ERROR'
+
+falsification_tests:
+  - id: FALSIFY-VEC-001
+    rule: 'Aprender row count is exactly 5'
+    prediction: 'For the 50-row films.json fixture, FilmRagPipeline::search(query, 5) returns exactly 5 hits.'
+    test: 'aprender_film_search runtime assert on hits.len() == DEFAULT_TOP_K; smoke-tested in CI without Docker.'
+    if_fails: 'Either DEFAULT_TOP_K was changed without updating the assertion, or the corpus shrank below 5 rows, or the pipeline truncated early due to a chunker / fusion bug.'
+
+  - id: FALSIFY-VEC-002
+    rule: 'Aprender top score is non-negative'
+    prediction: 'RRF fused scores are sums of 1/(60+rank) terms which are strictly positive; the top-scoring hit is non-negative.'
+    test: 'aprender_film_search runtime assert on hits[0].score >= 0.0.'
+    if_fails: 'The score field is being populated from a different signal (e.g. a negative L2 distance projected as score) — fix the score_of() helper.'
+
+  - id: FALSIFY-VEC-003
+    rule: 'All Aprender film ids are positive'
+    prediction: 'Sakila auto_increment film.id starts at 1; the loader and pipeline never alter ids.'
+    test: 'aprender_film_search loop asserts h.id > 0 on each hit.'
+    if_fails: 'Either data/films.json was edited to include a 0 / negative id, or the chunk_to_film map is colliding with a default 0-key entry.'
+
+  - id: FALSIFY-VEC-004
+    rule: 'Aprender result is sorted by score descending'
+    prediction: 'FilmRagPipeline::search post-sorts hits by best-chunk-score descending after dedup.'
+    test: 'aprender_film_search pairwise assert across the FilmHit vector before emitting JSON.'
+    if_fails: 'The post-sort step was removed or the comparator was inverted; reversed output is the signature.'
+
+  - id: FALSIFY-VEC-005
+    rule: 'Qdrant row count is exactly 5'
+    prediction: 'For 50-row collection, SearchPointsBuilder::new(.., .., 5) returns exactly 5 ScoredPoints.'
+    test: 'qdrant_film_search runtime assert on hits.len() == DEFAULT_TOP_K; CI integration job brings up compose.yml and runs end-to-end.'
+    if_fails: 'Either the collection has fewer than 5 rows (upsert dropped silently) or the limit field was overridden; check ensure_collection / upsert_films.'
+
+  - id: FALSIFY-VEC-006
+    rule: 'Qdrant top score is non-negative'
+    prediction: 'Hash-embedder vectors are unit-norm; cosine similarity against any other unit-norm vector lies in [-1, 1] but strongly clusters in [0, 1] for typical text.'
+    test: 'qdrant_film_search runtime assert on hits[0].score >= 0.0.'
+    if_fails: 'The collection was created with a non-cosine distance (Euclidean, dot) without updating the assertion contract.'
+
+  - id: FALSIFY-VEC-007
+    rule: 'All Qdrant film ids are positive'
+    prediction: 'PointStruct::new(film.id, ...) round-trips Sakila ids through the gRPC layer; PointId.Num is u64 so positivity is structural.'
+    test: 'qdrant_film_search loop asserts h.id > 0 on each hit.'
+    if_fails: 'Either the payload schema changed (id stored as a string instead of the point id) or the response carries Uuid ids — check the PointIdOptions match in vec-qdrant.'
+
+  - id: FALSIFY-VEC-008
+    rule: 'Qdrant result is sorted by score descending'
+    prediction: 'Qdrant search returns highest-similarity points first by default; the wrapper preserves order.'
+    test: 'qdrant_film_search pairwise assert across the FilmHit vector before emitting JSON.'
+    if_fails: 'The wrapper re-sorted the response in the wrong direction, or the server received a search query with an explicit ascending order param.'
+
+qa_gate:
+  id: F-VEC-001
+  name: 'Vector Databases with Rust Contract'
+  description: 'Eight runtime invariants asserted across the two end-to-end demos in vec-cli/examples (aprender + qdrant).'
+  checks:
+    - 'aprender_row_count_exact'
+    - 'aprender_top_score_non_negative'
+    - 'aprender_film_id_positive'
+    - 'aprender_score_descending'
+    - 'qdrant_row_count_exact'
+    - 'qdrant_top_score_non_negative'
+    - 'qdrant_film_id_positive'
+    - 'qdrant_score_descending'
+  pass_criteria: 'All eight falsification tests pass; runtime asserts never fire on the canonical Sakila fixture.'
+
+kani_harnesses:
+  - id: KANI-VEC-001
+    obligation: 'Aprender row count is exactly 5'
+    property: 'len(hits) == 5 for any non-empty FilmRagPipeline with >=5 indexed films'
+    bound: 4
+    strategy: exhaustive
+    harness: verify_aprender_row_count_exact
+  - id: KANI-VEC-002
+    obligation: 'Aprender top score is non-negative'
+    property: 'hits[0].score >= 0.0 when hits is non-empty'
+    bound: 4
+    strategy: exhaustive
+    harness: verify_aprender_top_score_non_negative
+  - id: KANI-VEC-003
+    obligation: 'All Aprender film ids are positive'
+    property: 'forall h in hits. h.id > 0'
+    bound: 4
+    strategy: exhaustive
+    harness: verify_aprender_film_id_positive
+  - id: KANI-VEC-004
+    obligation: 'Aprender result is sorted by score descending'
+    property: 'forall i in 0..len(hits)-1. hits[i].score >= hits[i+1].score'
+    bound: 4
+    strategy: exhaustive
+    harness: verify_aprender_score_descending
+  - id: KANI-VEC-005
+    obligation: 'Qdrant row count is exactly 5'
+    property: 'len(hits) == 5 for a 50-row Qdrant collection with limit=5'
+    bound: 4
+    strategy: exhaustive
+    harness: verify_qdrant_row_count_exact
+  - id: KANI-VEC-006
+    obligation: 'Qdrant top score is non-negative'
+    property: 'hits[0].score >= 0.0 when hits is non-empty'
+    bound: 4
+    strategy: exhaustive
+    harness: verify_qdrant_top_score_non_negative
+  - id: KANI-VEC-007
+    obligation: 'All Qdrant film ids are positive'
+    property: 'forall h in hits. h.id > 0'
+    bound: 4
+    strategy: exhaustive
+    harness: verify_qdrant_film_id_positive
+  - id: KANI-VEC-008
+    obligation: 'Qdrant result is sorted by score descending'
+    property: 'forall i in 0..len(hits)-1. hits[i].score >= hits[i+1].score'
+    bound: 4
+    strategy: exhaustive
+    harness: verify_qdrant_score_descending
