@@ -1,8 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 480" width="1280" height="480">
-<!-- HERO — paiml/rust-vector-databases README banner.
-     Visual story: Sakila film rows → embedded vectors → two backends
-     (in-process aprender, server-backed Qdrant). Same oxide-premium
-     chassis as the c12 lesson masters and the mysql-from-zero hero. -->
+<!-- HERO — paiml/rag-from-zero README banner.
+     Visual story: Module 1 aprender-rag pipeline (in-process, pure Rust)
+     -> Module 2 pmat query (production code-search RAG with enrichment).
+     Same oxide-premium chassis as the c12 lesson masters and the
+     mysql-from-zero hero. -->
 
 <defs>
   <style>
@@ -20,20 +21,16 @@
     <stop offset="50%" stop-color="#9c84ff" stop-opacity="0.85"/>
     <stop offset="100%" stop-color="#ffab00" stop-opacity="0.85"/>
   </linearGradient>
-  <radialGradient id="zone-films" cx="50%" cy="50%" r="50%">
+  <radialGradient id="zone-aprender" cx="50%" cy="50%" r="55%">
     <stop offset="0%" stop-color="#00b8d9" stop-opacity="0.20"/>
     <stop offset="100%" stop-color="#00b8d9" stop-opacity="0"/>
   </radialGradient>
-  <radialGradient id="zone-vec" cx="50%" cy="50%" r="50%">
-    <stop offset="0%" stop-color="#9c84ff" stop-opacity="0.22"/>
-    <stop offset="100%" stop-color="#9c84ff" stop-opacity="0"/>
-  </radialGradient>
-  <radialGradient id="zone-be" cx="50%" cy="50%" r="50%">
+  <radialGradient id="zone-pmat" cx="50%" cy="50%" r="55%">
     <stop offset="0%" stop-color="#ffab00" stop-opacity="0.20"/>
     <stop offset="100%" stop-color="#ffab00" stop-opacity="0"/>
   </radialGradient>
   <marker id="arrow" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="strokeWidth">
-    <path d="M 0 0 L 12 7 L 0 14 Z" fill="#00b8d9"/>
+    <path d="M 0 0 L 12 7 L 0 14 Z" fill="#9c84ff"/>
   </marker>
 </defs>
 
@@ -44,94 +41,111 @@
 
 <!-- Title block — left third -->
 <g class="h">
-  <text x="60" y="92" font-size="40" font-weight="700" fill="#eeeeee">Vector Databases with Rust</text>
-  <text x="60" y="128" font-size="20" fill="#a5d6ff" letter-spacing="0.05em">Embed Sakila · index in-process or in Qdrant · search</text>
+  <text x="60" y="92" font-size="44" font-weight="700" fill="#eeeeee">RAG from Zero</text>
+  <text x="60" y="128" font-size="20" fill="#a5d6ff" letter-spacing="0.05em">Rust for Data Engineering · aprender-rag in-process · pmat query in production</text>
+  <text x="60" y="158" font-size="14" fill="#7ee787" letter-spacing="0.10em" font-weight="700">2 MODULES · 10 LESSONS · 8 RUNTIME CONTRACTS</text>
 </g>
 
-<!-- Pillar 1: Sakila film cards (cyan) -->
-<circle cx="180" cy="290" r="120" fill="url(#zone-films)"/>
-<g id="pillar-films">
-  <rect x="92" y="206" width="176" height="180" rx="10" fill="#0e1726" stroke="#00b8d9" stroke-width="3"/>
-  <rect x="92" y="206" width="176" height="34" rx="10" fill="#003b4d" stroke="#00b8d9" stroke-width="2"/>
-  <text x="180" y="230" text-anchor="middle" class="h" font-size="15" font-weight="700" fill="#eeeeee">Sakila films</text>
-  <line x1="104" y1="252" x2="256" y2="252" stroke="#00b8d9" stroke-width="1.5" opacity="0.5"/>
-  <!-- 5 stacked film card rows -->
-  <rect x="104" y="262" width="152" height="20" rx="3" fill="#1a2540" stroke="#00b8d9" stroke-width="1.2"/>
-  <text x="112" y="276" class="m" font-size="11" fill="#a5d6ff">ACADEMY DINOSAUR</text>
-  <rect x="104" y="286" width="152" height="20" rx="3" fill="#1a2540" stroke="#00b8d9" stroke-width="1.2"/>
-  <text x="112" y="300" class="m" font-size="11" fill="#a5d6ff">ACE GOLDFINGER</text>
-  <rect x="104" y="310" width="152" height="20" rx="3" fill="#1a2540" stroke="#00b8d9" stroke-width="1.2"/>
-  <text x="112" y="324" class="m" font-size="11" fill="#a5d6ff">ADAPTATION HOLES</text>
-  <rect x="104" y="334" width="152" height="20" rx="3" fill="#1a2540" stroke="#00b8d9" stroke-width="1.2"/>
-  <text x="112" y="348" class="m" font-size="11" fill="#a5d6ff">AFFAIR PREJUDICE</text>
-  <rect x="104" y="358" width="152" height="20" rx="3" fill="#1a2540" stroke="#00b8d9" stroke-width="1.2"/>
-  <text x="112" y="372" class="m" font-size="11" fill="#a5d6ff">AFRICAN EGG</text>
-  <text x="180" y="408" text-anchor="middle" class="label" font-size="13" font-weight="700" fill="#00b8d9">FILMS</text>
+<!-- ======================================================== -->
+<!-- LEFT ZONE: Module 1 — aprender-rag pipeline               -->
+<!-- ======================================================== -->
+<circle cx="290" cy="320" r="180" fill="url(#zone-aprender)"/>
+<g id="aprender-pipeline">
+  <text x="290" y="218" text-anchor="middle" class="label" font-size="13" font-weight="700" fill="#00b8d9">MODULE 1 · IN-PROCESS</text>
+
+  <rect x="120" y="240" width="340" height="160" rx="10" fill="#0e1726" stroke="#00b8d9" stroke-width="3"/>
+  <rect x="120" y="240" width="340" height="32" rx="10" fill="#1a1d23" stroke="#00b8d9" stroke-width="2.5"/>
+  <text x="138" y="262" class="m" font-size="14" font-weight="700" fill="#00b8d9">aprender-rag</text>
+  <text x="448" y="262" text-anchor="end" class="m" font-size="12" fill="#a5d6ff">no Docker</text>
+
+  <rect x="138" y="290" width="58" height="32" rx="4" fill="#1a2540" stroke="#00b8d9" stroke-width="2"/>
+  <text x="167" y="311" text-anchor="middle" class="m" font-size="11" fill="#a5d6ff">chunk</text>
+
+  <rect x="200" y="290" width="58" height="32" rx="4" fill="#1a2540" stroke="#00b8d9" stroke-width="2"/>
+  <text x="229" y="311" text-anchor="middle" class="m" font-size="11" fill="#a5d6ff">embed</text>
+
+  <rect x="262" y="290" width="58" height="32" rx="4" fill="#1a2540" stroke="#00b8d9" stroke-width="2"/>
+  <text x="291" y="311" text-anchor="middle" class="m" font-size="11" fill="#a5d6ff">index</text>
+
+  <rect x="324" y="290" width="58" height="32" rx="4" fill="#1a2540" stroke="#00b8d9" stroke-width="2"/>
+  <text x="353" y="311" text-anchor="middle" class="m" font-size="11" fill="#a5d6ff">fuse</text>
+
+  <rect x="386" y="290" width="58" height="32" rx="4" fill="#1a2540" stroke="#00b8d9" stroke-width="2"/>
+  <text x="415" y="311" text-anchor="middle" class="m" font-size="11" fill="#a5d6ff">retrieve</text>
+
+  <text x="138" y="345" class="m" font-size="11" fill="#7ee787">RecursiveChunker(512, 50)</text>
+  <text x="138" y="362" class="m" font-size="11" fill="#7ee787">MockEmbedder(384) → candle</text>
+  <text x="138" y="379" class="m" font-size="11" fill="#7ee787">RRF { k: 60 }</text>
+
+  <text x="290" y="425" text-anchor="middle" class="label" font-size="12" font-weight="700" fill="#00b8d9">FILM SEARCH · 4 CONTRACTS</text>
 </g>
 
-<!-- Pillar 2: Embedded vectors as sparkline rows (purple) -->
-<circle cx="540" cy="290" r="125" fill="url(#zone-vec)"/>
-<g id="pillar-vectors">
-  <rect x="448" y="206" width="184" height="180" rx="10" fill="#0e1726" stroke="#9c84ff" stroke-width="3"/>
-  <rect x="448" y="206" width="184" height="34" rx="10" fill="#3a2e6c" stroke="#9c84ff" stroke-width="2"/>
-  <text x="540" y="230" text-anchor="middle" class="h" font-size="15" font-weight="700" fill="#eeeeee">Embedded vectors</text>
-  <line x1="460" y1="252" x2="620" y2="252" stroke="#9c84ff" stroke-width="1.5" opacity="0.5"/>
-  <!-- 5 sparkline rows — each one a polyline of 12 short y-jiggle values -->
-  <polyline points="464,272 472,266 480,275 488,268 496,278 504,264 512,271 520,277 528,267 536,272 544,275 552,268 560,274 568,266 576,278 584,270 592,265 600,275 608,272 616,267" fill="none" stroke="#b8acff" stroke-width="2"/>
-  <polyline points="464,296 472,290 480,300 488,295 496,287 504,298 512,292 520,302 528,290 536,294 544,289 552,300 560,295 568,288 576,302 584,294 592,290 600,297 608,294 616,291" fill="none" stroke="#b8acff" stroke-width="2"/>
-  <polyline points="464,320 472,316 480,324 488,318 496,326 504,316 512,321 520,326 528,317 536,322 544,326 552,318 560,323 568,316 576,326 584,320 592,316 600,324 608,321 616,318" fill="none" stroke="#b8acff" stroke-width="2"/>
-  <polyline points="464,344 472,338 480,348 488,344 496,338 504,348 512,342 520,350 528,340 536,344 544,340 552,350 560,344 568,338 576,350 584,344 592,340 600,348 608,344 616,340" fill="none" stroke="#b8acff" stroke-width="2"/>
-  <polyline points="464,368 472,362 480,370 488,366 496,372 504,362 512,368 520,373 528,365 536,370 544,372 552,366 560,370 568,362 576,372 584,366 592,362 600,370 608,367 616,365" fill="none" stroke="#b8acff" stroke-width="2"/>
-  <text x="540" y="408" text-anchor="middle" class="label" font-size="13" font-weight="700" fill="#9c84ff">VECTORS · 384d</text>
+<!-- Center connector arrow: "same RAG, two paradigms" -->
+<g id="connector">
+  <line x1="490" y1="320" x2="610" y2="320" stroke="#9c84ff" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="550" y="306" text-anchor="middle" class="label" font-size="11" font-weight="700" fill="#b8acff">SAME RAG</text>
+  <text x="550" y="338" text-anchor="middle" class="label" font-size="11" fill="#9c84ff">text · code</text>
 </g>
 
-<!-- Pillar 3a: in-process aprender (amber, left half) -->
-<circle cx="860" cy="290" r="105" fill="url(#zone-be)"/>
-<g id="pillar-aprender">
-  <rect x="788" y="216" width="144" height="160" rx="10" fill="#0e1726" stroke="#ffab00" stroke-width="3"/>
-  <rect x="788" y="216" width="144" height="32" rx="10" fill="#5c3d00" stroke="#ffab00" stroke-width="2"/>
-  <text x="860" y="238" text-anchor="middle" class="h" font-size="14" font-weight="700" fill="#eeeeee">in-process</text>
-  <text x="860" y="270" text-anchor="middle" class="m" font-size="13" font-weight="700" fill="#ffab00">aprender-rag</text>
-  <text x="860" y="288" text-anchor="middle" class="m" font-size="11" fill="#ffab00">RecursiveChunker</text>
-  <text x="860" y="304" text-anchor="middle" class="m" font-size="11" fill="#ffab00">MockEmbedder</text>
-  <text x="860" y="320" text-anchor="middle" class="m" font-size="11" fill="#ffab00">RRF k=60</text>
-  <text x="860" y="346" text-anchor="middle" class="m" font-size="11" fill="#ff9d1a">no Docker</text>
-  <text x="860" y="364" text-anchor="middle" class="m" font-size="11" fill="#ff9d1a">no model d/l</text>
+<!-- ======================================================== -->
+<!-- RIGHT ZONE: Module 2 — pmat query                         -->
+<!-- ======================================================== -->
+<circle cx="930" cy="320" r="180" fill="url(#zone-pmat)"/>
+<g id="pmat-query">
+  <text x="930" y="218" text-anchor="middle" class="label" font-size="13" font-weight="700" fill="#ffab00">MODULE 2 · IN PRODUCTION</text>
+
+  <rect x="640" y="240" width="580" height="160" rx="10" fill="#0e1726" stroke="#ffab00" stroke-width="3"/>
+  <rect x="640" y="240" width="580" height="32" rx="10" fill="#1a1d23" stroke="#ffab00" stroke-width="2.5"/>
+  <circle cx="660" cy="256" r="5" fill="#ff5630"/>
+  <circle cx="677" cy="256" r="5" fill="#ffab00"/>
+  <circle cx="694" cy="256" r="5" fill="#36b37e"/>
+  <text x="1206" y="262" text-anchor="end" class="m" font-size="14" font-weight="700" fill="#ffab00">pmat query</text>
+
+  <text x="660" y="296" class="m" font-size="13" fill="#7ee787">$</text>
+  <text x="676" y="296" class="m" font-size="13" fill="#a5d6ff">pmat query "dispatch" --rank-by pagerank --churn --faults -G</text>
+
+  <text x="660" y="320" class="m" font-size="11" fill="#b8acff">aprender/src/dispatch.rs:42-89</text>
+  <text x="900" y="320" class="m" font-size="11" fill="#7ee787">TDG: A</text>
+  <text x="970" y="320" class="m" font-size="11" fill="#ffab00">churn 12%</text>
+  <text x="1050" y="320" class="m" font-size="11" fill="#ff9d1a">faults 1</text>
+  <text x="1120" y="320" class="m" font-size="11" fill="#9c84ff">PR ↑0.84</text>
+
+  <text x="660" y="338" class="m" font-size="11" fill="#b8acff">trueno/src/vector/dispatch.rs:120-157</text>
+  <text x="900" y="338" class="m" font-size="11" fill="#7ee787">TDG: A</text>
+  <text x="970" y="338" class="m" font-size="11" fill="#ffab00">churn  4%</text>
+  <text x="1050" y="338" class="m" font-size="11" fill="#7ee787">faults 0</text>
+  <text x="1120" y="338" class="m" font-size="11" fill="#9c84ff">PR ↑0.71</text>
+
+  <text x="660" y="356" class="m" font-size="11" fill="#b8acff">aprender-rag/src/pipeline.rs:31-78</text>
+  <text x="900" y="356" class="m" font-size="11" fill="#7ee787">TDG: A</text>
+  <text x="970" y="356" class="m" font-size="11" fill="#ffab00">churn 18%</text>
+  <text x="1050" y="356" class="m" font-size="11" fill="#7ee787">faults 0</text>
+  <text x="1120" y="356" class="m" font-size="11" fill="#9c84ff">PR ↑0.62</text>
+
+  <text x="660" y="386" class="m" font-size="11" fill="#a5d6ff">flags:</text>
+  <text x="700" y="386" class="m" font-size="11" fill="#7ee787">--churn</text>
+  <text x="754" y="386" class="m" font-size="11" fill="#ffab00">--duplicates</text>
+  <text x="838" y="386" class="m" font-size="11" fill="#9c84ff">--entropy</text>
+  <text x="912" y="386" class="m" font-size="11" fill="#ff9d1a">--faults</text>
+  <text x="976" y="386" class="m" font-size="11" fill="#36b37e">--coverage-gaps</text>
+  <text x="1090" y="386" class="m" font-size="11" fill="#b8acff">-G</text>
+
+  <text x="930" y="425" text-anchor="middle" class="label" font-size="12" font-weight="700" fill="#ffab00">CODE SEARCH · ENRICHED RANKING</text>
 </g>
-
-<!-- Pillar 3b: server qdrant (amber, right half) -->
-<g id="pillar-qdrant">
-  <rect x="952" y="216" width="144" height="160" rx="10" fill="#0e1726" stroke="#ffab00" stroke-width="3"/>
-  <rect x="952" y="216" width="144" height="32" rx="10" fill="#5c3d00" stroke="#ffab00" stroke-width="2"/>
-  <text x="1024" y="238" text-anchor="middle" class="h" font-size="14" font-weight="700" fill="#eeeeee">server</text>
-  <text x="1024" y="270" text-anchor="middle" class="m" font-size="13" font-weight="700" fill="#ffab00">Qdrant 1.x</text>
-  <!-- Stylized Qdrant "Q" mark -->
-  <circle cx="1024" cy="304" r="24" fill="none" stroke="#ffab00" stroke-width="3.5"/>
-  <line x1="1040" y1="320" x2="1052" y2="332" stroke="#ffab00" stroke-width="3.5" stroke-linecap="round"/>
-  <text x="1024" y="346" text-anchor="middle" class="m" font-size="11" fill="#ff9d1a">HNSW · Cosine</text>
-  <text x="1024" y="364" text-anchor="middle" class="m" font-size="11" fill="#ff9d1a">gRPC :6334</text>
-</g>
-
-<!-- Backend pillar label, spans both 3a and 3b -->
-<text x="942" y="408" text-anchor="middle" class="label" font-size="13" font-weight="700" fill="#ffab00">TWO BACKENDS</text>
-
-<!-- Arrows: films → vectors, vectors → backends -->
-<line x1="280" y1="290" x2="438" y2="290" stroke="#00b8d9" stroke-width="3" marker-end="url(#arrow)"/>
-<line x1="640" y1="290" x2="778" y2="290" stroke="#00b8d9" stroke-width="3" marker-end="url(#arrow)"/>
 
 <!-- Bottom contracts strip — single line -->
 <g id="contracts-strip">
-  <rect x="60" y="430" width="1160" height="32" rx="6" fill="#161b22" stroke="#7ee787" stroke-width="2" fill-opacity="0.85"/>
-  <text x="78" y="452" class="h" font-size="13" font-weight="700" fill="#7ee787">Provable contracts:</text>
-  <text x="232" y="452" class="m" font-size="13" fill="#eeeeee">hits.len() == 5  ·  top.score &gt;= 0  ·  film.id &gt; 0  ·  pairwise descending sort</text>
+  <rect x="60" y="448" width="1160" height="22" rx="4" fill="#161b22" stroke="#7ee787" stroke-width="1.5" fill-opacity="0.85"/>
+  <text x="80" y="464" class="h" font-size="12" font-weight="700" fill="#7ee787">Provable contracts:</text>
+  <text x="208" y="464" class="m" font-size="12" fill="#eeeeee">M1 hits.len() == 5  ·  top.score ≥ 0  ·  film.id &gt; 0  ·  pairwise sort  +  M2 cross-project workspace index</text>
 </g>
 
 <!-- GRID PROTOCOL MANIFEST
   template: HERO (README banner)
   canvas: 1280x480
-  zones: films@(180,290) | vectors@(540,290) | aprender@(860,290) | qdrant@(1024,290)
-  text_elements: 22
-  palette_colors: [#0e1726, #1a2540, #161b22, #003b4d, #3a2e6c, #5c3d00, #00b8d9, #9c84ff, #b8acff, #ffab00, #ff9d1a, #a5d6ff, #7ee787, #eeeeee]
+  zones: aprender@(290,320) | connector@(550,320) | pmat@(930,320)
+  text_elements: 35
+  palette_colors: [#0e1726, #1a2540, #1a1d23, #161b22, #00b8d9, #a5d6ff, #ffab00, #ff9d1a, #ff5630, #9c84ff, #b8acff, #36b37e, #7ee787, #eeeeee]
   bounds_check: all elements within 0,0 → 1280,480
 -->
 </svg>
