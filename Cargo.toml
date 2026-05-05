@@ -13,8 +13,8 @@ resolver = "2"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/paiml/rust-vector-databases"
-homepage = "https://github.com/paiml/rust-vector-databases"
+repository = "https://github.com/paiml/rag-from-zero"
+homepage = "https://github.com/paiml/rag-from-zero"
 authors = ["Noah Gift <noah@paiml.com>"]
 rust-version = "1.95"
 
