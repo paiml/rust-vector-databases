@@ -98,9 +98,9 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
 name = "aprender-rag"
-version = "0.31.2"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b5c83449e89dac458588541e9502896b09924ed6e7b96644bd8090dea1f87e3"
+checksum = "0b7516cad02331a7e7976c896da3d7dcbc6f1553f6a140b49d1c81ba7e10f08e"
 dependencies = [
  "async-trait",
  "batuta-common",

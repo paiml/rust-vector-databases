@@ -37,7 +37,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
 # Course-specific stack
-aprender-rag = "0.31.2"
+aprender-rag = "0.32.0"
 qdrant-client = "1.17"
 
 [profile.release]
