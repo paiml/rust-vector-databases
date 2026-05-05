@@ -1,7 +1,7 @@
 //! In-process Sakila-film RAG pipeline built on `aprender-rag`.
 //!
 //! This crate is the "no Docker required" half of the workspace. It
-//! wraps [`trueno_rag::RagPipeline`] (the published `aprender-rag`
+//! wraps [`aprender_rag::RagPipeline`] (the published `aprender-rag`
 //! crate's library name) configured for the Sakila film corpus:
 //!
 //! * `RecursiveChunker(512, 50)` — film descriptions are short
@@ -21,7 +21,7 @@
 //!
 //! # Document → film mapping
 //!
-//! Each film becomes one [`trueno_rag::Document`] with the Sakila
+//! Each film becomes one [`aprender_rag::Document`] with the Sakila
 //! `film.id` stored in `metadata.custom["film_id"]`. On query, we
 //! reach into the returned chunk's metadata to recover the id, look
 //! the film back up by id (cheap — a `HashMap` is built at index
@@ -35,7 +35,7 @@
 use std::collections::HashMap;
 
 use anyhow::Result;
-use trueno_rag::{
+use aprender_rag::{
     chunk::RecursiveChunker, embed::MockEmbedder, fusion::FusionStrategy,
     pipeline::RagPipelineBuilder, rerank::NoOpReranker, ChunkId, Document, RagPipeline,
 };
@@ -58,7 +58,7 @@ pub const CHUNK_OVERLAP: usize = 50;
 /// * `chunk_to_film: HashMap<ChunkId, u64>` — built at index time by
 ///   capturing the [`ChunkId`]s returned from `index_document`. The
 ///   chunker does not propagate `Document.metadata.custom` to
-///   `Chunk.metadata.custom` in `aprender-rag` 0.31.2, so we keep the
+///   `Chunk.metadata.custom` in `aprender-rag` 0.32.0, so we keep the
 ///   id-mapping on our side instead.
 /// * `by_id: HashMap<u64, Film>` — recovers the full film row from the
 ///   id at search time.
@@ -92,7 +92,7 @@ impl FilmRagPipeline {
     }
 
     /// Index every film as a single [`Document`]. The chunker returns
-    /// the produced [`trueno_rag::Chunk`]s; we capture each
+    /// the produced [`aprender_rag::Chunk`]s; we capture each
     /// [`ChunkId`] and map it back to the originating Sakila id so
     /// queries can recover the full film.
     ///
@@ -185,12 +185,12 @@ impl FilmRagPipeline {
     }
 }
 
-/// Best-available score from a [`trueno_rag::RetrievalResult`].
+/// Best-available score from a [`aprender_rag::RetrievalResult`].
 ///
 /// Hybrid retrieval surfaces multiple scoring layers; we pick the
 /// fused score if present, otherwise the dense score, otherwise the
 /// sparse score, otherwise 0.0.
-fn score_of(r: &trueno_rag::RetrievalResult) -> f32 {
+fn score_of(r: &aprender_rag::RetrievalResult) -> f32 {
     r.fused_score
         .or(r.dense_score)
         .or(r.sparse_score)
